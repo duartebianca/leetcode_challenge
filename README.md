@@ -12,11 +12,11 @@ Este repositório tem como objetivo resolver todos os exercícios do LeetCode, o
 
 | Categoria | Resolvidos | Total | Progresso |
 |-----------|------------|-------|-----------|
-| Easy      | 1          | 908   | 0%        |
+| Easy      | 4          | 908   | 0%        |
 | Medium    | 0          | 1936  | 0%        |
 | Hard      | 0          | 877   | 0%        |
 
-**Total**: 1 / 3721 exercícios resolvidos
+**Total**: 4 / 3721 exercícios resolvidos
 
 ## 📁 Estrutura do Repositório
 
