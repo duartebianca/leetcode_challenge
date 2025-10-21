@@ -1,0 +1,70 @@
+name: Update README Progress
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'easy/**'
+      - 'medium/**'
+      - 'hard/**'
+  workflow_dispatch:
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Count files and update README
+        run: |
+          # Count files in each directory (excluding .gitkeep)
+          EASY_COUNT=$(find easy -type f ! -name '.gitkeep' | wc -l)
+          MEDIUM_COUNT=$(find medium -type f ! -name '.gitkeep' | wc -l)
+          HARD_COUNT=$(find hard -type f ! -name '.gitkeep' | wc -l)
+          
+          # Total counts
+          EASY_TOTAL=908
+          MEDIUM_TOTAL=1936
+          HARD_TOTAL=877
+          TOTAL_EXERCISES=3721
+          
+          # Calculate percentages
+          EASY_PERCENT=$(awk "BEGIN {printf \"%.0f\", ($EASY_COUNT/$EASY_TOTAL)*100}")
+          MEDIUM_PERCENT=$(awk "BEGIN {printf \"%.0f\", ($MEDIUM_COUNT/$MEDIUM_TOTAL)*100}")
+          HARD_PERCENT=$(awk "BEGIN {printf \"%.0f\", ($HARD_COUNT/$HARD_TOTAL)*100}")
+          
+          # Calculate total solved
+          TOTAL_SOLVED=$((EASY_COUNT + MEDIUM_COUNT + HARD_COUNT))
+          
+          # Update README.md
+          sed -i "s/| Easy      | [0-9]\+\s*| 908   | [0-9]\+%\s*|/| Easy      | $EASY_COUNT          | 908   | $EASY_PERCENT%        |/" README.md
+          sed -i "s/| Medium    | [0-9]\+\s*| 1936  | [0-9]\+%\s*|/| Medium    | $MEDIUM_COUNT          | 1936  | $MEDIUM_PERCENT%        |/" README.md
+          sed -i "s/| Hard      | [0-9]\+\s*| 877   | [0-9]\+%\s*|/| Hard      | $HARD_COUNT          | 877   | $HARD_PERCENT%        |/" README.md
+          sed -i "s/\*\*Total\*\*: [0-9]\+ \/ 3721 exercícios resolvidos/**Total**: $TOTAL_SOLVED \/ 3721 exercícios resolvidos/" README.md
+          
+          echo "Updated counts: Easy=$EASY_COUNT, Medium=$MEDIUM_COUNT, Hard=$HARD_COUNT, Total=$TOTAL_SOLVED"
+      
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if git diff --quiet README.md; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Commit and push if changed
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add README.md
+          git commit -m "🤖 Atualiza progresso automaticamente"
+          git push
